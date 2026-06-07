@@ -1,0 +1,26 @@
+{
+  "manifest_version": 3,
+  "name": "Etsy Order Exporter",
+  "version": "1.0",
+  "description": "Đẩy đơn hàng Etsy sang Google Sheet",
+  "permissions": [
+    "storage" 
+  ],
+  "host_permissions": [
+    "https://www.etsy.com/your/orders/*",
+    "https://script.google.com/*"
+  ],
+  "action": {
+    "default_popup": "popup.html",
+    "default_icon": "icon.png" 
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.etsy.com/your/orders/*"],
+      "js": ["content.js"]
+    }
+  ],
+  "icons": {
+    "128": "icon.png"
+  }
+}

@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <style>
+    body {
+      width: 350px;
+      padding: 15px;
+      font-family: Arial, sans-serif;
+      font-size: 14px;
+    }
+    h3 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+    .made-by {
+      font-size: 12px;
+      color: #555;
+      text-align: right;
+      margin-top: -10px;
+    }
+    .warning {
+      color: red;
+      font-weight: bold;
+      font-size: 13px;
+    }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-top: 10px;
+    }
+    input[type="text"] {
+      width: 95%;
+      padding: 8px;
+      margin-top: 5px;
+      font-size: 12px;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #4CAF50; /* Màu xanh */
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    button:hover {
+      background-color: #45a049;
+    }
+    .links {
+      margin-top: 15px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+<body>
+  <h3>Export Order Etsy To Google Sheet</h3>
+  <div class="made-by">Made by SangLee</div>
+  
+  <p class="warning">Khi update vui lòng nhớ F5 lại tab sử dụng extension nhé</p>
+  
+  <!-- Thông báo cần update extension -->
+  <div id="updateNotification" style="display: none; background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 4px; padding: 10px; margin-bottom: 15px;">
+    <p style="margin: 0 0 8px 0; font-weight: bold; color: #856404;">⚠️ Cần cập nhật Extension!</p>
+    <p style="margin: 0 0 8px 0; font-size: 12px; color: #856404;">Extension đã có phiên bản mới với tính năng chọn loại shop (Key Fob / Strap). Vui lòng cập nhật!</p>
+    <button id="updateButton" style="width: 100%; padding: 6px; background-color: #ffc107; color: #000; border: none; border-radius: 3px; cursor: pointer; font-size: 12px; font-weight: bold;">🔄 Hướng dẫn cập nhật</button>
+    <button id="dismissUpdate" style="width: 100%; padding: 4px; background: none; border: none; color: #856404; cursor: pointer; font-size: 11px; margin-top: 5px; text-decoration: underline;">Đã hiểu, đóng lại</button>
+  </div>
+  
+  <!-- Nút check update luôn hiển thị -->
+  <button id="checkUpdateBtn" style="width: 100%; padding: 8px; background-color: #17a2b8; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; margin-bottom: 10px;">
+    🔍 Kiểm tra cập nhật (Key Fob / Strap)
+  </button>
+  
+  <label for="scriptId">ID Google Scripts:</label>
+  <input type="text" id="scriptId" placeholder="Dán ID triển khai của bạn vào đây">
+  
+  <!-- Nhóm radio button chọn loại shop -->
+  <div style="margin-top: 15px;">
+    <label style="font-weight: bold; display: block; margin-bottom: 8px;">Loại Shop:</label>
+    <div style="margin-left: 10px;">
+      <label style="font-weight: normal; display: flex; align-items: center; margin-top: 8px; cursor: pointer;">
+        <input type="radio" name="shopType" value="keyfob" style="margin-right: 8px; cursor: pointer;">
+        <span>Key Fob Order</span>
+      </label>
+      <label style="font-weight: normal; display: flex; align-items: center; margin-top: 8px; cursor: pointer;">
+        <input type="radio" name="shopType" value="strap" style="margin-right: 8px; cursor: pointer;">
+        <span>Strap Watch Order</span>
+      </label>
+    </div>
+  </div>
+  
+  <button id="saveButton">Save ID</button>
+  
+  <div class="links">
+    <p>- Vào Trang Order Watch Straps: <a href="https://docs.google.com/spreadsheets/d/1aWCOKShQNR0UXByRuv7TnXqfPzL66pJxRrd134lukY4/edit?gid=1365547201#gid=1365547201" id="strapLink" target="_blank">Ở Đây</a>.</p>
+    <p>- Vào Trang Order Key Fob Cover: <a href="https://docs.google.com/spreadsheets/d/1aWCOKShQNR0UXByRuv7TnXqfPzL66pJxRrd134lukY4/edit?gid=264458134#gid=264458134" id="keyfobLink" target="_blank">Ở đây</a>.</p>
+  </div>
+    <p>- Vào Trang QUẢN LÝ ĐƠN HÀNG <a href="https://docs.google.com/spreadsheets/d/1vLPTyR5jsnu0r7ebkPVVcS5Ni7_Gp49yKGUJA_gV4QA/" id="guideLink">Ở đây</a>.</p>
+	<p>- Vào Trang Tracking SGBAY <a href="https://docs.google.com/spreadsheets/d/1PYgGitWlAs5SugwZXBYEAr9MgWOj5KjE/edit?gid=1461968148#gid=1461968148" id="guideLink">Ở đây</a>.</p>
+  </div>
+  <script src="popup.js"></script>
+</body>
+</html>
