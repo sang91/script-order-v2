@@ -1,7 +1,7 @@
 /*
  * =============================================================
  * == FILE: 5_Sheets.gs
- * == M?C ��CH: Sheet operations (menu, clear, ensure, append, format)
+ * == MỤC ĐÍCH: Sheet operations (menu, clear, ensure, append, format)
  * =============================================================
  */
 
@@ -20,19 +20,19 @@ function onOpen() {
     .addSeparator()
     .addItem("Clear ALL", "clearAll_")
     .addSeparator()
-    .addItem("?? Force Update YUN Headers", "forceUpdateYunHeaders_")
-    .addItem("?? Chu?n b? YUN export (2 sheet)", "prepareYunExportBothSheets_")
+    .addItem("🔄 Force Update YUN Headers", "forceUpdateYunHeaders_")
+    .addItem("📤 Chuẩn bị YUN export (2 sheet)", "prepareYunExportBothSheets_")
     .addToUi();
   
   // LOGO Tools menu (AI + Manual Mapping)
   ui.createMenu("LOGO Tools")
-    .addItem("?? AI Analyze Logo", "aiAnalyzeLogo_")
-    .addItem("?? Tr�ch xu?t Logo (V�ng ch?n)", "runLogoExtractor")
+    .addItem("🤖 AI Analyze Logo", "aiAnalyzeLogo_")
+    .addItem("📝 Trích xuất Logo (Vùng chọn)", "runLogoExtractor")
     .addSeparator()
-    .addItem("?? Map Logo (� b�i den D)", "logoMapSelected")
-    .addItem("?? Map Logo (To�n b? c?t D)", "logoMapAll")
+    .addItem("�️ Map Logo (Ô bôi đen D)", "logoMapSelected")
+    .addItem("�️ Map Logo (Toàn bộ cột D)", "logoMapAll")
     .addSeparator()
-    .addItem("??? X�a ?nh Logo (ALL)", "logoClearAll")
+    .addItem("🗑️ Xóa ảnh Logo (ALL)", "logoClearAll")
     .addToUi();
 }
 
@@ -44,28 +44,28 @@ function clearSheetKeepHeader_(sheetName) {
   const sh = ss.getSheetByName(sheetName);
   
   if (!sh) {
-    if (activeSs) activeSs.toast(`? Sheet "${sheetName}" kh�ng t?n t?i`, "Error", 3);
+    if (activeSs) activeSs.toast(`❌ Sheet "${sheetName}" không tồn tại`, "Error", 3);
     return;
   }
   
   const lastRow = sh.getLastRow();
   if (lastRow <= 1) {
-    if (activeSs) activeSs.toast(`? Sheet "${sheetName}" d� tr?ng`, "Info", 2);
+    if (activeSs) activeSs.toast(`✅ Sheet "${sheetName}" đã trống`, "Info", 2);
     return;
   }
   
   const maxCols = sh.getMaxColumns();
   const dataRange = sh.getRange(2, 1, lastRow - 1, maxCols);
   
-  // Clear content (text) nhung gi? format, merge, borders
+  // Clear content (text) nhưng giữ format, merge, borders
   dataRange.clearContent();
   
-  // Clear formatting (background, borders) nhung gi? header
+  // Clear formatting (background, borders) nhưng giữ header
   dataRange.breakApart();
   dataRange.setBackground(null);
   dataRange.setBorder(false, false, false, false, false, false);
   
-  if (activeSs) activeSs.toast(`? �� clear "${sheetName}" (gi? header)`, "Success", 2);
+  if (activeSs) activeSs.toast(`✅ Đã clear "${sheetName}" (giữ header)`, "Success", 2);
 }
 
 function clearKeyFob_()   { clearSheetKeepHeader_(SHEET_KEYFOB); }
@@ -84,9 +84,9 @@ function clearAll_() {
     clearYunAll_();
     clearYunToday_();
     
-    if (activeSs) activeSs.toast("? �� clear t?t c? sheets (gi? header)", "Success", 3);
+    if (activeSs) activeSs.toast("✅ Đã clear tất cả sheets (giữ header)", "Success", 3);
   } catch (err) {
-    if (activeSs) activeSs.toast(`? L?i khi clear: ${err.message}`, "Error", 5);
+    if (activeSs) activeSs.toast(`❌ Lỗi khi clear: ${err.message}`, "Error", 5);
   }
 }
 
@@ -156,7 +156,7 @@ function loadExistingSet_(sheet, colIndex1Based) {
     vals.forEach(r => {
       const v = safeString_(r[0]);
       if (v) {
-        // Extract uniqueKeyBase t? uniqueKey (remove _0, _1, _2, etc.)
+        // Extract uniqueKeyBase từ uniqueKey (remove _0, _1, _2, etc.)
         // uniqueKey format: "orderId_sku_variations_0" -> "orderId_sku_variations"
         // Also handle old format without _0, _1 (backward compatible)
         let baseKey = v;
@@ -192,8 +192,8 @@ function getYunPriceNumber_(country) {
 }
 
 /**
- * C�n n?ng + gi� = S? (export xlsx d�ng ki?u cho Yun).
- * Format [$-409] d? GSheet locale VN v?n hi?n th? 0.084 / 29, kh�ng th�nh 84.000.
+ * Cân nặng + giá = SỐ (export xlsx đúng kiểu cho Yun).
+ * Format [$-409] để GSheet locale VN vẫn hiển thị 0.084 / 29, không thành 84.000.
  */
 function repairYunLocaleColumns_(sheet, startRow, numRows) {
   if (!sheet || numRows < 1) return;
@@ -201,7 +201,7 @@ function repairYunLocaleColumns_(sheet, startRow, numRows) {
   repairYunPriceColumns_(sheet, startRow, numRows);
 }
 
-/** �?m d�ng data th?t (c� CustomerOrderNo), b? qua d�ng tr?ng ph�a du?i. */
+/** Đếm dòng data thật (có CustomerOrderNo), bỏ qua dòng trống phía dưới. */
 function countYunDataRows_(sheet) {
   const last = sheet.getLastRow();
   if (last < 2) return 0;
@@ -213,7 +213,7 @@ function countYunDataRows_(sheet) {
   return n;
 }
 
-/** X�a c?t th?a sau LabelLink � export xlsx kh�ng l?ch 74 c?t template Yun. */
+/** Xóa cột thừa sau LabelLink — export xlsx không lệch 74 cột template Yun. */
 function trimYunExtraColumns_(sheet) {
   const totalCols = getYunTotalCols_();
   const lastCol = sheet.getLastColumn();
@@ -273,7 +273,7 @@ function buildFixedYunRow_(row) {
   return out;
 }
 
-/** Format c?t export � s? US + text cho m� don/zip. */
+/** Format cột export — số US + text cho mã đơn/zip. */
 function applyYunExportFormats_(sheet, startRow, numRows) {
   if (!sheet || numRows < 1) return;
   sheet.getRange(startRow, YUN_COLS.orderNo, numRows, 1).setNumberFormat("@");
@@ -284,8 +284,8 @@ function applyYunExportFormats_(sheet, startRow, numRows) {
 }
 
 /**
- * S?a to�n b? d? li?u sheet YUN d? export xlsx kh?p template Yun.
- * @return {number} s? d�ng d� s?a
+ * Sửa toàn bộ dữ liệu sheet YUN để export xlsx khớp template Yun.
+ * @return {number} số dòng đã sửa
  */
 function repairYunSheetForExport_(sheet) {
   if (!sheet) return 0;
@@ -321,14 +321,14 @@ function prepareYunExportBothSheets_() {
     const activeSs = SpreadsheetApp.getActiveSpreadsheet();
     if (activeSs) {
       activeSs.toast(
-        `? YUN export: ${n1} + ${n2} d�ng | ${getYunTotalCols_()} c?t | s? US 0.084/29`,
+        `✅ YUN export: ${n1} + ${n2} dòng | ${getYunTotalCols_()} cột | số US 0.084/29`,
         "Success",
         6
       );
     }
   } catch (err) {
     const activeSs = SpreadsheetApp.getActiveSpreadsheet();
-    if (activeSs) activeSs.toast(`? ${err.message}`, "Error", 5);
+    if (activeSs) activeSs.toast(`❌ ${err.message}`, "Error", 5);
     throw err;
   }
 }
@@ -375,7 +375,7 @@ function normalizeYunWeightNumber_(value) {
   return YUN_RATE;
 }
 
-/** Parse gi� khai b�o YUN � kh�ng d�ng parseMoneyString_ (29.000 ? 29000). */
+/** Parse giá khai báo YUN — không dùng parseMoneyString_ (29.000 → 29000). */
 function parseYunDeclaredPrice_(value) {
   if (value === null || value === undefined || value === "") return 0;
   if (typeof value === "number") {
@@ -441,8 +441,8 @@ function appendYunRows_(sheet, yunObjs, mode) {
     // Basic order info
     rowArr[YUN_COLS.orderNo - 1] = obj.orderNo;
     rowArr[YUN_COLS.routing - 1] = YUN_ROUTING_CODE;
-    // Trackingnumber (c?t 3) - d? tr?ng ho?c c� th? l?y t? tracking sau
-    // rowArr[YUN_COLS.tracking - 1] = ""; // �? tr?ng
+    // Trackingnumber (cột 3) - để trống hoặc có thể lấy từ tracking sau
+    // rowArr[YUN_COLS.tracking - 1] = ""; // Để trống
 
     // VAT Number for GB (United Kingdom)
     if (obj.country === "GB" || obj.country === "UK") {
@@ -450,15 +450,15 @@ function appendYunRows_(sheet, yunObjs, mode) {
     }
 
     // IOSS for EU countries
-    // LUU �: AT = Austria (EU) ? c� IOSS, AU = Australia (kh�ng ph?i EU) ? kh�ng c� IOSS
+    // LƯU Ý: AT = Austria (EU) → có IOSS, AU = Australia (không phải EU) → không có IOSS
     if (EU_COUNTRIES.has(obj.country)) {
       rowArr[YUN_COLS.ioss - 1] = YUN_IOSS_NUMBER;
-      // Log d? debug n?u c?n
+      // Log để debug nếu cần
       if (obj.country === "AT") {
         Logger.log(`[YUN] AT (Austria) - EU country, IOSS code added`);
       }
     } else if (obj.country === "AU") {
-      // AU = Australia (kh�ng ph?i EU) ? kh�ng c� IOSS code
+      // AU = Australia (không phải EU) → không có IOSS code
       Logger.log(`[YUN] AU (Australia) - Non-EU country, no IOSS code`);
     }
 
@@ -474,7 +474,7 @@ function appendYunRows_(sheet, yunObjs, mode) {
 
     // Package info
     rowArr[YUN_COLS.packageNumber - 1] = 1;
-    rowArr[YUN_COLS.packageWeight - 1] = YUN_RATE; // 0.084 kg (s?)
+    rowArr[YUN_COLS.packageWeight - 1] = YUN_RATE; // 0.084 kg (số)
     
     rowArr[YUN_COLS.senderCountry - 1] = YUN_SENDER_COUNTRY;
 
@@ -484,7 +484,7 @@ function appendYunRows_(sheet, yunObjs, mode) {
     rowArr[YUN_COLS.currencyCode - 1] = YUN_CURRENCY_CODE;
     rowArr[YUN_COLS.sku1 - 1] = isStrap ? YUN_SKU_STRAP : YUN_SKU_KEYFOB;
     rowArr[YUN_COLS.itemDescription1 - 1] = itemDesc;
-    rowArr[YUN_COLS.foreignItemDescription1 - 1] = itemDesc; // ForeignItemDescription1 (c?t 48)
+    rowArr[YUN_COLS.foreignItemDescription1 - 1] = itemDesc; // ForeignItemDescription1 (cột 48)
     rowArr[YUN_COLS.declaredQuantity1 - 1] = 1;
     
     const priceNum = getYunPriceNumber_(obj.country);
@@ -605,19 +605,19 @@ function setPrivateSheetIdMenu_() {
       try {
         setPrivateSpreadsheetId(sheetId);
         SpreadsheetApp.getActiveSpreadsheet().toast(
-          `? PRIVATE Sheet ID set: ${sheetId}`,
+          `✅ PRIVATE Sheet ID set: ${sheetId}`,
           "Success",
           5
         );
       } catch (err) {
         SpreadsheetApp.getActiveSpreadsheet().toast(
-          `? Error: ${err.message}`,
+          `❌ Error: ${err.message}`,
           "Error",
           5
         );
       }
     } else {
-      SpreadsheetApp.getActiveSpreadsheet().toast("? Sheet ID cannot be empty", "Error", 3);
+      SpreadsheetApp.getActiveSpreadsheet().toast("❌ Sheet ID cannot be empty", "Error", 3);
     }
   }
 }
@@ -631,17 +631,17 @@ function forceUpdateDashboardHeader() {
     const sheet = ss.getSheetByName("Dashboard");
     
     if (!sheet) {
-      ss.toast("? Dashboard sheet not found", "Error", 5);
+      ss.toast("❌ Dashboard sheet not found", "Error", 5);
       return;
     }
     
     // Force update header
     ensureDashboardHeader_(sheet);
     
-    ss.toast("? Dashboard header updated", "Success", 3);
+    ss.toast("✅ Dashboard header updated", "Success", 3);
   } catch (err) {
     SpreadsheetApp.getActiveSpreadsheet().toast(
-      `? Error: ${err.message}`,
+      `❌ Error: ${err.message}`,
       "Error",
       5
     );
@@ -650,7 +650,7 @@ function forceUpdateDashboardHeader() {
 
 /**
  * Force update YUNEXPRESS & YUNEXPRESS TODAY headers
- * D�ng khi header tr�n sheet b? cu/l?ch c?t
+ * Dùng khi header trên sheet bị cũ/lệch cột
  */
 function forceUpdateYunHeaders_() {
   try {
@@ -664,7 +664,7 @@ function forceUpdateYunHeaders_() {
     const activeSs = SpreadsheetApp.getActiveSpreadsheet();
     if (activeSs) {
       activeSs.toast(
-        `? YUN ${getYunTotalCols_()} c?t | s?a ${n1}+${n2} d�ng | 0.084 / 29|14 USD`,
+        `✅ YUN ${getYunTotalCols_()} cột | sửa ${n1}+${n2} dòng | 0.084 / 29|14 USD`,
         "Success",
         6
       );
@@ -672,7 +672,7 @@ function forceUpdateYunHeaders_() {
   } catch (err) {
     const activeSs = SpreadsheetApp.getActiveSpreadsheet();
     if (activeSs) {
-      activeSs.toast(`? L?i: ${err.message}`, "Error", 5);
+      activeSs.toast(`❌ Lỗi: ${err.message}`, "Error", 5);
     }
   }
 }

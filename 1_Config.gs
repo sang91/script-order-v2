@@ -1,7 +1,7 @@
 /*
  * =============================================================
  * == FILE: 1_Config.gs
- * == M?C ��CH: Constants, IDs, column mappings
+ * == MỤC ĐÍCH: Constants, IDs, column mappings
  * =============================================================
  */
 
@@ -22,49 +22,49 @@ const SHEET_DASHBOARD_MONTHLY = "Dashboard_Monthly";
 const SHEET_ADS_SUMMARY_INPUT = "Ads_Summary_Input";
 
 // ==================== YUNEXPRESS COLUMNS ====================
-// Map d�ng template Yun m?i (74 c?t, c� LabelLink) - Updated 2026-06
-// Yun x�a 3 c?t (ManufactureSalesName, UnifiedSocialCreditCode, Collection...)
-// Yun th�m 3 c?t (PackageLength, PackageWidth, PackageHeight)
-// C?t 11-24 d?ch l�n 3, c?t 28+ gi? nguy�n
+// Map đúng template Yun mới (74 cột, có LabelLink) - Updated 2026-06
+// Yun xóa 3 cột (ManufactureSalesName, UnifiedSocialCreditCode, Collection...)
+// Yun thêm 3 cột (PackageLength, PackageWidth, PackageHeight)
+// Cột 11-24 dịch lên 3, cột 28+ giữ nguyên
 const YUN_COLS = {
   orderNo: 1,              // CustomerOrderNo.
   routing: 2,              // RoutingCode
   tracking: 3,             // Trackingnumber
   vatNumber: 8,            // VatNumber (cho GB)
   ioss: 10,                // IossCode (cho EU)
-  country: 11,             // CountryCode � was 14
-  name: 12,                // Name � was 15
-  street: 15,              // Street � was 18
-  city: 16,                // City � was 19
-  province: 17,            // Province/State � was 20
-  zip: 18,                 // ZipCode � was 21
-  phone: 19,               // phone � was 22
-  email: 21,               // Email � was 24
-  packageNumber: 23,       // PackageNumber � was 26
-  packageWeight: 24,       // PackageWeight � was 27
-  senderCountry: 34,       // SenderCountry � gi? nguy�n
-  currencyCode: 46,        // CurrencyCode � gi? nguy�n
-  sku1: 47,                // SKU1 � gi? nguy�n
-  itemDescription1: 48,    // ItemDescription1 � gi? nguy�n
-  foreignItemDescription1: 49, // ForeignItemDescription1 � gi? nguy�n
-  declaredQuantity1: 50,   // DeclaredQuantity1 � gi? nguy�n
-  fobPrice1: 51,           // FOBPrice1 � gi? nguy�n
-  sellingPrice1: 52,       // SellingPrice1 � gi? nguy�n
-  unitWeight1: 53,         // UnitWeight1 � gi? nguy�n
-  hsCode1: 54,             // HsCode1 (cho GB) � gi? nguy�n
-  labelLink: 74            // LabelLink � c?t m?i tr�n template Yun
+  country: 11,             // CountryCode — was 14
+  name: 12,                // Name — was 15
+  street: 15,              // Street — was 18
+  city: 16,                // City — was 19
+  province: 17,            // Province/State — was 20
+  zip: 18,                 // ZipCode — was 21
+  phone: 19,               // phone — was 22
+  email: 21,               // Email — was 24
+  packageNumber: 23,       // PackageNumber — was 26
+  packageWeight: 24,       // PackageWeight — was 27
+  senderCountry: 34,       // SenderCountry — giữ nguyên
+  currencyCode: 46,        // CurrencyCode — giữ nguyên
+  sku1: 47,                // SKU1 — giữ nguyên
+  itemDescription1: 48,    // ItemDescription1 — giữ nguyên
+  foreignItemDescription1: 49, // ForeignItemDescription1 — giữ nguyên
+  declaredQuantity1: 50,   // DeclaredQuantity1 — giữ nguyên
+  fobPrice1: 51,           // FOBPrice1 — giữ nguyên
+  sellingPrice1: 52,       // SellingPrice1 — giữ nguyên
+  unitWeight1: 53,         // UnitWeight1 — giữ nguyên
+  hsCode1: 54,             // HsCode1 (cho GB) — giữ nguyên
+  labelLink: 74            // LabelLink — cột mới trên template Yun
 };
 
 // ==================== YUNEXPRESS SETTINGS ====================
 const YUN_ROUTING_CODE = "VNTHZXR";
 const YUN_RATE = 0.084;
-/** Format US (409) � hi?n th? 0.084 / 29 d�ng tr�n GSheet VN, export xlsx v?n l� s? */
+/** Format US (409) — hiển thị 0.084 / 29 đúng trên GSheet VN, export xlsx vẫn là số */
 const YUN_WEIGHT_FORMAT = "[$-409]0.000";
 const YUN_PRICE_FORMAT = "[$-409]0";
 const YUN_INT_FORMAT = "[$-409]0";
 const YUN_IOSS_NUMBER = "IOSS253421447001716368490"; // IOSS cho EU countries
-const YUN_VAT_NUMBER_GB = "GB123456789"; // VAT number cho GB (c?n c?p nh?t s? th?c t?)
-// Gi� fix c?ng: 29 (tr? CA = 14)
+const YUN_VAT_NUMBER_GB = "GB123456789"; // VAT number cho GB (cần cập nhật số thực tế)
+// Giá fix cứng: 29 (trừ CA = 14)
 const YUN_FOB_PRICE_DEFAULT = 29;
 const YUN_FOB_PRICE_CA = 14;
 const YUN_SELLING_PRICE_DEFAULT = 29;
@@ -75,13 +75,13 @@ const YUN_SKU_KEYFOB = "keyfob";
 const YUN_SKU_STRAP = "strap";
 
 // ==================== DASHBOARD SETTINGS ====================
-const USD_TO_VND_RATE = 26500; // T? gi� USD sang VND
-const OFFSITE_ADS_ESTIMATED_RATE = 0.005; // 0.5% c?a total customer paid per month
+const USD_TO_VND_RATE = 26500; // Tỷ giá USD sang VND
+const OFFSITE_ADS_ESTIMATED_RATE = 0.005; // 0.5% của total customer paid per month
 
 // ==================== PRODUCT COST CONFIGURATION ====================
 // Product cost by product type (in VND)
 const PRODUCT_COST_KEYFOB = 135000; // Keyfob cost
-const PRODUCT_COST_STRAP_WATCH = 300000; // Strap/Watch (d?ng h?) cost
+const PRODUCT_COST_STRAP_WATCH = 300000; // Strap/Watch (đồng hồ) cost
 
 // ==================== SHIPPING COST CONFIGURATION ====================
 // Shipping cost table by weight and country (SAIGONBAY EPACK 2025)
@@ -123,8 +123,8 @@ const SHIPPING_COST_TABLE = {
 };
 
 // Shipping weight calculation
-// M?i item = 0.084kg (84gr)
-// T?ng weight = 84gr * s? lu?ng items
+// Mỗi item = 0.084kg (84gr)
+// Tổng weight = 84gr * số lượng items
 const SHIPPING_BASE_WEIGHT_GR = 84; // 0.084kg = 84gr per item
 
 /**
@@ -164,18 +164,18 @@ function getShippingCostByWeight_(weightGr, countryCode) {
     "IT": "EU", "ITALY": "EU", "ITALIA": "EU",
     "ES": "EU", "SPAIN": "EU", "ESPANA": "EU",
     "NL": "EU", "NETHERLANDS": "EU", "HOLLAND": "EU",
-    "BE": "EU", "BELGIUM": "EU", "BELGI�": "EU",
-    "AT": "EU", "AUSTRIA": "EU", "�STERREICH": "EU",
+    "BE": "EU", "BELGIUM": "EU", "BELGIË": "EU",
+    "AT": "EU", "AUSTRIA": "EU", "ÖSTERREICH": "EU",
     "SE": "EU", "SWEDEN": "EU", "SVERIGE": "EU",
     "DK": "EU", "DENMARK": "EU", "DANMARK": "EU",
     "FI": "EU", "FINLAND": "EU", "SUOMI": "EU",
     "PL": "EU", "POLAND": "EU", "POLSKA": "EU",
     "PT": "EU", "PORTUGAL": "EU",
-    "IE": "EU", "IRELAND": "EU", "�IRE": "EU",
+    "IE": "EU", "IRELAND": "EU", "ÉIRE": "EU",
     "CZ": "EU", "CZECH REPUBLIC": "EU", "CZECHIA": "EU",
     "GR": "EU", "GREECE": "EU",
-    "HU": "EU", "HUNGARY": "EU", "MAGYARORSZ�G": "EU",
-    "RO": "EU", "ROMANIA": "EU", "ROM�NIA": "EU",
+    "HU": "EU", "HUNGARY": "EU", "MAGYARORSZÁG": "EU",
+    "RO": "EU", "ROMANIA": "EU", "ROMÂNIA": "EU",
     "BG": "EU", "BULGARIA": "EU",
     "HR": "EU", "CROATIA": "EU",
     "SK": "EU", "SLOVAKIA": "EU",
@@ -231,9 +231,9 @@ const FEE_CONFIG = {
   VND: {
     tx_fee_rate: 0.065,           // 6.5% of (Buyer Paid - Tax)
     processing_rate: 0.045,       // 4.5% of Buyer Paid
-    processing_fixed: 115,         // ?115 per order
+    processing_fixed: 115,         // ₫115 per order
     regulatory_rate: 0.0124,       // 1.24% of (Buyer Paid - Tax)
-    listing_fee_fixed: 5256,       // ?5,256 per order
+    listing_fee_fixed: 5256,       // ₫5,256 per order
     offsite_ads_rate: 0.14,        // 14% of Buyer Paid (if Has Ads Attribution = TRUE, per order)
     vat_rate: 0.10                 // 10% VAT on fees
   }
@@ -251,7 +251,7 @@ function getFeeConfigByCurrency(currency) {
   return FEE_CONFIG[c] || FEE_CONFIG.USD; // Default to USD if unknown currency
 }
 
-// Dashboard Monthly Header (gi? nguy�n currency g?c, frontend s? convert)
+// Dashboard Monthly Header (giữ nguyên currency gốc, frontend sẽ convert)
 const DASHBOARD_MONTHLY_HEADER = [
   "Shop Name",
   "Month (YYYY-MM)",
@@ -265,7 +265,7 @@ const DASHBOARD_MONTHLY_HEADER = [
   "Last Updated"
 ];
 
-// Ads Summary Input Header (for manual override - theo currency g?c)
+// Ads Summary Input Header (for manual override - theo currency gốc)
 const ADS_SUMMARY_INPUT_HEADER = [
   "Shop Name",
   "Month (YYYY-MM)",
@@ -304,7 +304,7 @@ const DASHBOARD_HEADER = [
   "Gross Profit",
   "Net Profit",
   "Profit Margin %",
-  "Unique Key (?n)"
+  "Unique Key (Ẩn)"
 ];
 
 // ==================== DISPLAY SETTINGS ====================
@@ -315,16 +315,16 @@ const ORDER_COLOR_1 = "#ffcdd2"; // Pastel red
 const ORDER_COLOR_2 = "#bbdefb"; // Pastel blue
 
 // ==================== EU COUNTRIES (27 countries as of 2024) ====================
-// LUU � QUAN TR?NG: 
-// - AT = Austria (Austria) ? EU country ? c� IOSS code
-// - AU = Australia (Australia) ? KH�NG ph?i EU ? KH�NG c� IOSS code
-// Hai m� n�y d? nh?m l?n, c?n check k?!
+// LƯU Ý QUAN TRỌNG: 
+// - AT = Austria (Austria) → EU country → có IOSS code
+// - AU = Australia (Australia) → KHÔNG phải EU → KHÔNG có IOSS code
+// Hai mã này dễ nhầm lẫn, cần check kỹ!
 const EU_COUNTRIES = new Set([
-  "AT", // Austria (EU) - c� IOSS
+  "AT", // Austria (EU) - có IOSS
   "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR",
   "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL",
   "PL", "PT", "RO", "SK", "SI", "ES", "SE"
-  // AU (Australia) KH�NG c� trong list n�y v� kh�ng ph?i EU
+  // AU (Australia) KHÔNG có trong list này vì không phải EU
 ]);
 
 // ==================== HEADER DEFINITIONS ====================
@@ -337,7 +337,7 @@ const HEADER_KEYFOB = [
   "Shop Name",
   "Listing ID",
   "Shipping Info",
-  "Unique Key (?n)"
+  "Unique Key (Ẩn)"
 ];
 
 const HEADER_STRAP = [
@@ -348,15 +348,15 @@ const HEADER_STRAP = [
   "Shop Name",
   "Listing ID",
   "Shipping Info",
-  "Unique Key (?n)"
+  "Unique Key (Ẩn)"
 ];
 
 const HEADER_TRACKING = ["SKU", "Shipping Info"];
 
 // ==================== YUNEXPRESS HEADER ====================
-// Header d?y d? cho YUNEXPRESS template (74 c?t) � kh?p template Yun m?i
-// X�a: ManufactureSalesName, UnifiedSocialCreditCode, Collection and payment...
-// Th�m: PackageLength, PackageWidth, PackageHeight
+// Header đầy đủ cho YUNEXPRESS template (74 cột) — khớp template Yun mới
+// Xóa: ManufactureSalesName, UnifiedSocialCreditCode, Collection and payment...
+// Thêm: PackageLength, PackageWidth, PackageHeight
 function getYunHeader_() {
   return [
     "CustomerOrderNo.",       // 1
@@ -369,23 +369,23 @@ function getYunHeader_() {
     "VatNumber",              // 8
     "EoriNumber",             // 9
     "IossCode",               // 10
-    "CountryCode",            // 11 � was 14
-    "Name",                   // 12 � was 15
+    "CountryCode",            // 11 — was 14
+    "Name",                   // 12 — was 15
     "CertificateCode",        // 13
     "Company",                // 14
-    "Street",                 // 15 � was 18
-    "City",                   // 16 � was 19
-    "Province/State",         // 17 � was 20
-    "ZipCode",                // 18 � was 21
-    "phone",                  // 19 � was 22
+    "Street",                 // 15 — was 18
+    "City",                   // 16 — was 19
+    "Province/State",         // 17 — was 20
+    "ZipCode",                // 18 — was 21
+    "phone",                  // 19 — was 22
     "HouseNumber",            // 20
-    "Email",                  // 21 � was 24
+    "Email",                  // 21 — was 24
     "ShortAddress",           // 22
-    "PackageNumber",          // 23 � was 26
-    "PackageWeight",          // 24 � was 27
-    "PackageLength",          // 25 � M?I
-    "PackageWidth",           // 26 � M?I
-    "PackageHeight",          // 27 � M?I
+    "PackageNumber",          // 23 — was 26
+    "PackageWeight",          // 24 — was 27
+    "PackageLength",          // 25 — MỚI
+    "PackageWidth",           // 26 — MỚI
+    "PackageHeight",          // 27 — MỚI
     "SenderFiastName",        // 28
     "SenderCompany",          // 29
     "SenderStreet",           // 30
@@ -432,34 +432,34 @@ function getYunHeader_() {
     "PaymentPlatform",        // 71
     "PaymentAccount",         // 72
     "PaymentTransactionNumber", // 73
-    "LabelLink"                 // 74 � template Yun m?i (GSheet cu thi?u c?t n�y)
+    "LabelLink"                 // 74 — template Yun mới (GSheet cũ thiếu cột này)
   ];
 }
 
-/** S? c?t template Yun � lu�n = getYunHeader_().length */
+/** Số cột template Yun — luôn = getYunHeader_().length */
 function getYunTotalCols_() {
   return getYunHeader_().length;
 }
 
 // ==================== MULTI-SHOP IMAGE CONFIG ====================
-// C� 2 lo?i c?u tr�c:
-// 1. TYPE_LINKS: lookup theo listing_id + type (c?t A, C, H)
-// 2. CODE_TYPE: lookup theo CODE + TYPE ? IMAGE_LINK (c?t C, D, F)
+// Có 2 loại cấu trúc:
+// 1. TYPE_LINKS: lookup theo listing_id + type (cột A, C, H)
+// 2. CODE_TYPE: lookup theo CODE + TYPE → IMAGE_LINK (cột C, D, F)
 
 const LOOKUP_MODE = {
-  TYPE_LINKS: "type_links",  // xilacrafts - d�ng listing_id + type
-  CODE_TYPE: "code_type"     // c�c shop kh�c - d�ng CODE + TYPE
+  TYPE_LINKS: "type_links",  // xilacrafts - dùng listing_id + type
+  CODE_TYPE: "code_type"     // các shop khác - dùng CODE + TYPE
 };
 
 const SHOP_IMAGE_CONFIG = {
-  // Shop 1: xilacrafts - C?p nh?t sang CODE_TYPE chu?n
+  // Shop 1: xilacrafts - Cập nhật sang CODE_TYPE chuẩn
   "xilacrafts": {
     mode: LOOKUP_MODE.CODE_TYPE,
     ssid: "1R3aJ1AyM5qFNcVEuqmHhkC0FYGXR6skEnrUVykFsvpc",
-    sheet: "xilacrafts", // T�n sheet trong file DB chu?n
+    sheet: "xilacrafts", // Tên sheet trong file DB chuẩn
   },
   
-  // Shop 2: VietToanHandmade - d�ng CODE_TYPE
+  // Shop 2: VietToanHandmade - dùng CODE_TYPE
   "viettoanhandmade": {
     mode: LOOKUP_MODE.CODE_TYPE,
     ssid: "1R3aJ1AyM5qFNcVEuqmHhkC0FYGXR6skEnrUVykFsvpc",
@@ -468,35 +468,35 @@ const SHOP_IMAGE_CONFIG = {
     // C = CODE, D = TYPE, F = IMAGE_LINK
   },
   
-  // Shop 3: LAXILuxuryCrafts - d�ng CODE_TYPE (LAXI + 4 s?)
+  // Shop 3: LAXILuxuryCrafts - dùng CODE_TYPE (LAXI + 4 số)
   "laxiluxurycrafts": {
     mode: LOOKUP_MODE.CODE_TYPE,
     ssid: "1R3aJ1AyM5qFNcVEuqmHhkC0FYGXR6skEnrUVykFsvpc",
     sheet: "LAXILuxuryCrafts",
   },
   
-  // Shop 4: QuangDuocStore - d�ng CODE_TYPE
+  // Shop 4: QuangDuocStore - dùng CODE_TYPE
   "quangduocstore": {
     mode: LOOKUP_MODE.CODE_TYPE,
     ssid: "1R3aJ1AyM5qFNcVEuqmHhkC0FYGXR6skEnrUVykFsvpc",
-    sheet: "QuangDuocStore",  // TODO: �?i sheet name n?u kh�c
+    sheet: "QuangDuocStore",  // TODO: Đổi sheet name nếu khác
   },
   
-  // Shop 5: LongNamLeather - d�ng CODE_TYPE (LNL + 4 s?)
+  // Shop 5: LongNamLeather - dùng CODE_TYPE (LNL + 4 số)
   "longnamleather": {
     mode: LOOKUP_MODE.CODE_TYPE,
     ssid: "1R3aJ1AyM5qFNcVEuqmHhkC0FYGXR6skEnrUVykFsvpc",
     sheet: "LongNamLeather",
   },
   
-  // Shop 6: KHHANDCRAFTS - d�ng CODE_TYPE (KHN + 4 s?)
+  // Shop 6: KHHANDCRAFTS - dùng CODE_TYPE (KHN + 4 số)
   "khhandcrafts": {
     mode: LOOKUP_MODE.CODE_TYPE,
     ssid: "1R3aJ1AyM5qFNcVEuqmHhkC0FYGXR6skEnrUVykFsvpc",
     sheet: "KHHANDCRAFTS",
   },
   
-  // Shop 7: LeeCozzyCraft - d�ng CODE_TYPE (LCZ + 4 s?)
+  // Shop 7: LeeCozzyCraft - dùng CODE_TYPE (LCZ + 4 số)
   "leecozzycraft": {
     mode: LOOKUP_MODE.CODE_TYPE,
     ssid: "1R3aJ1AyM5qFNcVEuqmHhkC0FYGXR6skEnrUVykFsvpc",
@@ -504,7 +504,7 @@ const SHOP_IMAGE_CONFIG = {
   }
 };
 
-// Default config n?u shop kh�ng c� trong danh s�ch
+// Default config nếu shop không có trong danh sách
 const DEFAULT_IMAGE_CONFIG = {
   mode: LOOKUP_MODE.CODE_TYPE,
   ssid: "1R3aJ1AyM5qFNcVEuqmHhkC0FYGXR6skEnrUVykFsvpc",
@@ -522,17 +522,17 @@ function getShopImageConfig_(shopName) {
   const name = String(shopName).trim();
   const lower = name.toLowerCase();
   
-  // 1. Ki?m tra trong danh s�ch c?u h�nh c?ng (uu ti�n kh?p chu?n)
+  // 1. Kiểm tra trong danh sách cấu hình cứng (ưu tiên khớp chuẩn)
   if (SHOP_IMAGE_CONFIG[lower]) {
     return SHOP_IMAGE_CONFIG[lower];
   }
   
-  // 2. N?u kh�ng c� c?u h�nh ri�ng, tr? v? c?u h�nh m?c d?nh nhung d�ng ch�nh x�c t�n Shop l�m t�n Sheet
-  // (Theo y�u c?u: t�n shop v� sheet database s? tr�ng nhau)
+  // 2. Nếu không có cấu hình riêng, trả về cấu hình mặc định nhưng dùng chính xác tên Shop làm tên Sheet
+  // (Theo yêu cầu: tên shop và sheet database sẽ trùng nhau)
   return {
     mode: LOOKUP_MODE.CODE_TYPE,
     ssid: DEFAULT_IMAGE_CONFIG.ssid,
-    sheet: name // D�ng ch�nh x�c t�n shop (c� th? c� hoa thu?ng/d?u c�ch)
+    sheet: name // Dùng chính xác tên shop (có thể có hoa thường/dấu cách)
   };
 }
 

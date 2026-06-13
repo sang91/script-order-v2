@@ -1,7 +1,7 @@
 /*
  * =============================================================
  * == FILE: 3_Normalize.gs
- * == M?C ��CH: Normalization functions (country, ZIP, URL, state)
+ * == MỤC ĐÍCH: Normalization functions (country, ZIP, URL, state)
  * =============================================================
  */
 
@@ -24,13 +24,13 @@ function normalizeCountryCode_(rawCountry) {
     "antigua & barbuda": "AG", "antigua and barbuda": "AG", "anguilla": "AI",
     "albania": "AL", "armenia": "AM", "angola": "AO", "antarctica": "AQ",
     "argentina": "AR", "american samoa": "AS", "austria": "AT", "australia": "AU",
-    "aruba": "AW", "�land islands": "AX", "aland islands": "AX", "azerbaijan": "AZ",
+    "aruba": "AW", "åland islands": "AX", "aland islands": "AX", "azerbaijan": "AZ",
     
     // B
     "bosnia & herzegovina": "BA", "bosnia and herzegovina": "BA", "barbados": "BB",
     "bangladesh": "BD", "belgium": "BE", "burkina": "BF", "burkina faso": "BF",
     "bulgaria": "BG", "bahrain": "BH", "burundi": "BI", "benin": "BJ",
-    "saint barth�lemy": "BL", "saint barthelemy": "BL", "bermuda": "BM",
+    "saint barthélemy": "BL", "saint barthelemy": "BL", "bermuda": "BM",
     "brunei": "BN", "bolivia": "BO", "caribbean netherlands": "BQ", "brazil": "BR",
     "the bahamas": "BS", "bahamas": "BS", "bhutan": "BT", "bouvet island": "BV",
     "botswana": "BW", "belarus": "BY", "belize": "BZ",
@@ -50,7 +50,7 @@ function normalizeCountryCode_(rawCountry) {
     
     // E
     "ecuador": "EC", "estonia": "EE", "egypt": "EG", "western sahara": "EH",
-    "eritrea": "ER", "spain": "ES", "espa�a": "ES", "ethiopia": "ET",
+    "eritrea": "ER", "spain": "ES", "españa": "ES", "ethiopia": "ET",
     
     // F
     "finland": "FI", "fiji": "FJ", "falkland islands": "FK",
@@ -121,7 +121,7 @@ function normalizeCountryCode_(rawCountry) {
     "qatar": "QA",
     
     // R
-    "r�union": "RE", "reunion": "RE", "romania": "RO", "serbia": "RS",
+    "réunion": "RE", "reunion": "RE", "romania": "RO", "serbia": "RS",
     "russian federation": "RU", "russia": "RU", "rwanda": "RW",
     
     // S
@@ -139,7 +139,7 @@ function normalizeCountryCode_(rawCountry) {
     "chad": "TD", "french southern territories": "TF", "togo": "TG", "thailand": "TH",
     "tajikistan": "TJ", "tokelau": "TK", "timor-leste (east timor)": "TL",
     "timor-leste": "TL", "east timor": "TL", "turkmenistan": "TM", "tunisia": "TN",
-    "tonga": "TO", "turkey": "TR", "t�rkiye": "TR", "trinidadandtobago": "TT",
+    "tonga": "TO", "turkey": "TR", "türkiye": "TR", "trinidadandtobago": "TT",
     "trinidad and tobago": "TT", "tuvalu": "TV", "taiwan": "TW",
     "taiwan,province of china": "TW", "tanzania": "TZ",
     
@@ -358,8 +358,8 @@ function testNormalizeZip_() {
     const result = normalizeZip_(tc.zip, tc.country);
     const passed = result === tc.expected;
     if (!passed) allPassed = false;
-    Logger.log(`${passed ? "?" : "?"} ${tc.zip} (${tc.country}) -> ${result}`);
+    Logger.log(`${passed ? "✅" : "❌"} ${tc.zip} (${tc.country}) -> ${result}`);
   });
   
-  Logger.log(allPassed ? "\n?? ALL TESTS PASSED!" : "\n?? SOME TESTS FAILED!");
+  Logger.log(allPassed ? "\n🎉 ALL TESTS PASSED!" : "\n⚠️ SOME TESTS FAILED!");
 }
