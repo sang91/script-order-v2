@@ -32,7 +32,7 @@ function normalizeOrderForYun_(product, customerOrderNo) {
   };
 }
 
-function buildProductInfo_(product) {
+function buildProductInfo_(product, mode) {
   const lines = [];
 
   let sku = safeString_(product.product_sku);
@@ -41,6 +41,30 @@ function buildProductInfo_(product) {
 
   const variations = decodeHtml_(product.variations || "");
   if (!variations) return lines.join("\n\n");
+
+  // ===== STRAP WATCH MODE: Giữ lại tất cả các variations (ngoại trừ upload file) =====
+  if (mode === "strap") {
+    const variationLines = variations.split("\n").map(x => safeString_(x)).filter(Boolean);
+    for (const t of variationLines) {
+      if (typeof isNotRequestedLogo_ === "function" && isNotRequestedLogo_(t)) continue;
+      
+      const colonIdx = t.indexOf(":");
+      if (colonIdx <= 0) continue;
+      
+      const label = t.substring(0, colonIdx).trim().toLowerCase();
+      // Loại các field upload file/ảnh
+      if (label.includes("upload") || label.includes("photo") ||
+          label.includes("image") || label.includes("picture") ||
+          label.includes("file")  || label.includes("pic")) {
+        continue;
+      }
+      
+      lines.push(t);
+    }
+    return lines.join("\n\n");
+  }
+
+
 
   // Phát hiện FORMAT: Format cũ LUÔN có label "Personalization:" hoặc "Logo:" (exact) làm container multi-line.
   // Format mới dùng từng field riêng biệt (VD: "Customize Your Logo ✨", "Keychain option")
@@ -408,7 +432,7 @@ function doPost(e) {
       ];
       const shipInfoFull = shipArr.filter(Boolean).join("\n");
 
-      const productInfo = buildProductInfo_(product);
+      const productInfo = buildProductInfo_(product, mode);
       const shopName = safeString_(product.shop_name);
 
       // Build KEY TYPE image cell (Column C)
