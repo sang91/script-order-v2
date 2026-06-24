@@ -142,21 +142,32 @@ function buildProductInfo_(product, mode) {
  * Choose Cover Style, Name & Phone on SmartTag, Key Fob Photos...
  */
 function buildProductInfoNewFormat_(lines, variations) {
-  const variationLines = variations.split("\n").map(x => safeString_(x)).filter(Boolean);
+  const variationLines = variations.split("\n")
+    .map(x => preprocessVariationLine_(x))
+    .filter(Boolean);
 
   // Thu thập tất cả fields TỪ INPUT (thứ tự bất kỳ từ Etsy)
-  let colorText    = "";  // Màu
+  let colorText    = "";  // Màu chính
   let keyTypeText  = "";  // Key Type (C1, C5, TYPE 4...)
   let coverStyle   = "";  // Kín / Khoét
   let keychainText = "";  // Móc
-  let logoText     = "";  // Mã logo (Q40, B67...)
-  let tagText      = "";  // Tag name (SmartTag)
+  const logoTexts  = [];  // Mảng chứa thông tin Logo (tránh ghi đè)
+  const tagTexts   = [];  // Mảng chứa thông tin Tag (tránh ghi đè)
+  const otherLines = [];  // Mảng chứa các dòng không phân loại được hoặc ghi chú phụ
 
   for (const t of variationLines) {
     if (isNotRequestedLogo_(t)) continue;
 
     const colonIdx = t.indexOf(":");
-    if (colonIdx <= 0) continue;
+    if (colonIdx <= 0) {
+      // Loại bỏ các dòng tiêu đề ghi chú trống không mang giá trị (như "Logo code + Notes")
+      const tLower = t.toLowerCase();
+      if (tLower.includes("logo code") && tLower.includes("note")) {
+        continue;
+      }
+      otherLines.push(t);
+      continue;
+    }
 
     const label = t.substring(0, colonIdx).trim().toLowerCase();
     const value = t.substring(colonIdx + 1).trim();
@@ -169,42 +180,36 @@ function buildProductInfoNewFormat_(lines, variations) {
       continue;
     }
 
-    // ② COLOR (Màu)
-    if (label.includes("color") || label.includes("colour") || label.includes("leather")) {
+    // ② COVER STYLE (Kín/Khoét) - Ưu tiên kiểm tra trước để tránh nhầm với Key Type
+    if (label.includes("cover") || label === "style cover") {
+      const v = value.toLowerCase();
+      if (v.includes("full") || v.includes("covered")) coverStyle = "Kín";
+      else if (v.includes("cut") || v.includes("exposed")) coverStyle = "Khoét";
+
+    // ③ PRIMARY COLOR (Màu chính - loại trừ logo color)
+    } else if ((label.includes("color") || label.includes("colour") || label.includes("leather")) && !label.includes("logo")) {
       colorText = value;
 
-    // ③ KEY TYPE
-    } else if (label.includes("type")) {
+    // ④ KEY TYPE (Chỉ lấy nhãn type không chứa cover)
+    } else if (label.includes("type") && !label.includes("cover")) {
       keyTypeText = value;
-
-    // ④ COVER STYLE (Kín/Khoét)
-    } else if (label.includes("cover") || label === "style cover") {
-      const v = value.toLowerCase();
-      if (v.includes("full"))     coverStyle = "Kín";
-      else if (v.includes("cut")) coverStyle = "Khoét";
 
     // ⑤ KEYCHAIN / MÓC
     } else if (label.includes("keychain") || label.includes("key chain") || label.includes("móc")) {
       keychainText = value;
 
-    // ⑥ PERSONALIZATION (hybrid format cũ lẫn mới)
-    } else if (label === "personalization") {
-      if (!isNotRequestedLogo_(value)) logoText = value;
-
-    // ⑦ LOGO — bắt "logo", "emboss", "stamp"
-    //    "emboss" CHỈ khi KHÔNG có "text"/"tag"/"name"
-    //    → tránh "Text to be embossed on the tag" bị nhầm là logo selection
-    //    "stamp" CHỈ khi không có "name"/"phone"/"text"
+    // ⑥ PERSONALIZATION / LOGO (Cộng dồn vào mảng)
     } else if (
       label.includes("logo") ||
+      label === "personalization" ||
       (label.includes("emboss") && !label.includes("text") && !label.includes("tag") && !label.includes("name")) ||
       (label.includes("stamp") && !label.includes("name") && !label.includes("phone") && !label.includes("text"))
     ) {
-      if (!isNotRequestedLogo_(value)) logoText = value;
+      if (!isNotRequestedLogo_(value)) {
+        logoTexts.push(t);
+      }
 
-    // ⑧ TAG / NAME / PHONE / EMBOSSED TEXT — tên khách, số điện thoại, text dập lên tag
-    //    Bắt cả "Text to be embossed on the tag" (có "tag" hoặc "text"+"emboss")
-    //    "Upload Your Smart Key" đã bị loại ở ① (có "upload")
+    // ⑦ TAG / NAME / PHONE / EMBOSSED TEXT (Cộng dồn vào mảng)
     } else if (
       label.includes("tag")   ||
       label.includes("smart") ||
@@ -213,9 +218,12 @@ function buildProductInfoNewFormat_(lines, variations) {
       label.includes("engrav") ||
       (label.includes("text") && label.includes("emboss"))
     ) {
-      tagText = value;
+      tagTexts.push(t);
+
+    // ⑧ Các field còn lại → gom vào otherLines
+    } else {
+      otherLines.push(t);
     }
-    // Các field còn lại → bỏ qua
   }
 
   // Output theo THỨ TỰ CỐ ĐỊNH (độc lập với thứ tự input)
@@ -230,16 +238,59 @@ function buildProductInfoNewFormat_(lines, variations) {
       ? `Type: ${keyTypeText} - ${coverStyle}`
       : `Type: ${keyTypeText}`;
     lines.push(typeDisplay);
+  } else if (coverStyle) {
+    lines.push(`Style: ${coverStyle}`);
   }
 
   // 3. Móc (Keychain)
   if (keychainText) lines.push(`Móc: ${keychainText}`);
 
-  // 4. Logo (dùng "Logo:" để persMatch nhận ra)
-  if (logoText) lines.push(`Logo: ${logoText}`);
+  // 4. Logo (nối các dòng logo bằng xuống dòng)
+  if (logoTexts.length > 0) {
+    const logoContent = logoTexts.map(x => {
+      const colonIdx = x.indexOf(":");
+      if (colonIdx > 0) {
+        const label = x.substring(0, colonIdx).trim().toLowerCase();
+        const val = x.substring(colonIdx + 1).trim();
+        
+        // Chỉ rút gọn nhãn "Logo code + Notes", "Logo", "personalization" hoặc các nhãn chứa "back logo"
+        if (label === "logo code + notes" || label === "personalization" || label === "logo" || label.includes("back logo")) {
+          // Tránh lặp từ nếu trong giá trị đã chứa sẵn chữ "Logo:"
+          if (/^logo\s*:/i.test(val)) {
+            return val;
+          }
+          return `Logo: ${val}`;
+        }
+      }
+      // Giữ nguyên văn các dòng ghi chú khác như "logo color: 9, Patina blue"
+      return x;
+    }).join("\n");
+    lines.push(logoContent);
+  }
 
-  // 5. Tag (SmartTag name)
-  if (tagText) lines.push(`Tag: ${tagText}`);
+  // 5. Tag (nối các dòng tag)
+  if (tagTexts.length > 0) {
+    const tagContent = tagTexts.map(x => {
+      const colonIdx = x.indexOf(":");
+      if (colonIdx > 0) {
+        const label = x.substring(0, colonIdx).trim().toLowerCase();
+        const val = x.substring(colonIdx + 1).trim();
+        
+        // Chỉ rút gọn nhãn "Smart Tag Text" hoặc "SmartTag Text"
+        if (label.includes("smart tag") || label === "smarttag text") {
+          return `Tag: ${val}`;
+        }
+      }
+      // Giữ nguyên văn các dòng tag viết tay khác như "name tag: Angela" hay "tag: Casey&Tab"
+      return x;
+    }).join("\n");
+    lines.push(tagContent);
+  }
+
+  // 6. Thông tin khác không phân loại được
+  if (otherLines.length > 0) {
+    lines.push(otherLines.join("\n"));
+  }
 
   // Join \n\n giống format cũ → nhất quán
   return lines.join("\n\n");
@@ -992,7 +1043,7 @@ function testLogoExtractionV2() {
 /**
  * Config cho Private Manager Sheet (giống AppsScript/Code.gs)
  */
-const PRIVATE_MANAGER_HEADERS = [
+var PRIVATE_MANAGER_HEADERS = [
   { name: 'Note', key: 'note' },
   { name: 'Gift Message', key: 'gift_message' },
   { name: 'Is Gift', key: 'is_gift' },

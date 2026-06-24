@@ -123,3 +123,53 @@ function debugListDatabase() {
     }
   });
 }
+
+/**
+ * DEBUG - Test new parsing logic for Key Type, Cover Style, and Multi-line Personalization
+ */
+function debugNewParsingLogic() {
+  const test1 = {
+    sku: "KHOÉT HONDA SUV QDS2432 S00",
+    variations: [
+      "SKU: KHOÉT HONDA SUV QDS2432 S00",
+      "Primary color: 4 - PATINA ORANGE",
+      "Key Type: TYPE 12",
+      "Keychain Style: Key 4 - Ring Black",
+      "Cover Type: Exposed Buttons",
+      "Upload Exact Smart Key Photo1 file"
+    ].join("\n")
+  };
+
+  const test2 = {
+    sku: "KHOÉT NISSAN SEDAN QDS7361 S65",
+    variations: [
+      "Primary color25 - TURQUOise",
+      "Key Type:TYPE 9",
+      "Logo code + Notes",
+      "Logo: Q96",
+      "logo color: 9, Patina blue",
+      "name tag: Angela",
+      "Keychain Style: Key 1 - Silver",
+      "Cover Type: Covered Buttons",
+      "Smart Tag Text: 5209544001",
+      "Upload Exact Smart Key Photo5 files"
+    ].join("\n")
+  };
+
+  Logger.log("========== TEST 1: HONDA SUV (COVER STYLE & KEY TYPE) ==========");
+  const parsedType1 = parseKeyTypeFromVariations_(test1.variations);
+  Logger.log("parseKeyTypeFromVariations_ output: " + parsedType1);
+
+  const lines1 = [`SKU : ${test1.sku}`];
+  const info1 = buildProductInfoNewFormat_(lines1, test1.variations);
+  Logger.log("buildProductInfoNewFormat_ output:\n" + info1);
+
+  Logger.log("\n========== TEST 2: NISSAN SEDAN (MULTI-LINE & NO COLON) ==========");
+  const parsedType2 = parseKeyTypeFromVariations_(test2.variations);
+  Logger.log("parseKeyTypeFromVariations_ output: " + parsedType2);
+
+  const lines2 = [`SKU : ${test2.sku}`];
+  const info2 = buildProductInfoNewFormat_(lines2, test2.variations);
+  Logger.log("buildProductInfoNewFormat_ output:\n" + info2);
+}
+

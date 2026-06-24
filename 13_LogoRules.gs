@@ -56,55 +56,79 @@ function runVietToanLogoExtractor() {
 function extractLogoVietToanRules_(message, override) {
   // (1) Kiểm tra Logo Override (Cột E)
   if (override) {
-    const normalizedOverride = normalizeToTCode_(override);
-    if (isValidTCodeRange_(normalizedOverride)) {
-      return normalizedOverride;
+    const cleanOverride = override.trim().toUpperCase();
+    // Thử parse xem có prefix không (VD: S1, U1)
+    if (/^[A-Z]\d{1,4}$/.test(cleanOverride)) {
+      if (isValidLogoRange_(cleanOverride)) {
+        const match = cleanOverride.match(/^([A-Z])(\d{1,4})$/);
+        return normalizeLogoNumber_(cleanOverride, match[1]);
+      }
     }
-    // Nếu có override nhưng không hợp lệ (1-110) thì bỏ qua, đi tiếp xuống (2)
+    // Nếu chỉ có số (VD: 5), mặc định prefix T
+    if (/^\d{1,4}$/.test(cleanOverride)) {
+      const formatted = "T" + cleanOverride;
+      if (isValidLogoRange_(formatted)) {
+        return normalizeLogoNumber_(formatted, "T");
+      }
+    }
   }
 
-  // (2) Kiểm tra mã rõ ràng dạng "Txx" trong message (Cột B)
-  // Regex tìm T1 đến T110, biên từ (\b) để tránh dính số khác
-  const explicitMatch = message.match(/\bT(\d{1,3})\b/i);
-  if (explicitMatch) {
-    const code = normalizeToTCode_(explicitMatch[1]);
-    if (isValidTCodeRange_(code)) {
-      return code;
+  // (2) Kiểm tra mã rõ ràng dạng "[Prefix][Số]" trong message (Cột B)
+  // Regex tìm [Prefix][Số] từ 1-138
+  const explicitMatch = message.match(/(?:^|[^A-Za-z])([A-Za-z])(\d{1,4})(?:[^0-9]|$)/i);
+  if (explicitMatch && explicitMatch[2]) {
+    const foundPrefix = explicitMatch[1].toUpperCase();
+    const code = foundPrefix + explicitMatch[2];
+    // Skip K (thường là keychain)
+    if (foundPrefix !== "K") {
+      if (isValidLogoRange_(code)) {
+        return normalizeLogoNumber_(code, foundPrefix);
+      }
     }
   }
 
-  // (3) Kiểm tra ngữ cảnh logo
+  // (3) Kiểm tra số đứng một mình sau keyword (nếu không có chữ cái đi kèm)
   const contextKeywords = ["logo", "stamp", "code", "number", "no", "#"];
   
-  // Duyệt qua từng từ khóa ngữ cảnh
   for (let kw of contextKeywords) {
-    // Escape special char #
     const escapedKw = kw === "#" ? "#" : kw;
-    // Regex: từ khóa + dấu cách/ký tự đặc biệt tùy chọn + số 1-3 chữ số
-    // Ví dụ: "logo 11", "stamp: 44", "code #12"
-    const regex = new RegExp(escapedKw + "[\\s\\:\\#\\-]*(\\d{1,3})", "i");
+    const regex = new RegExp(escapedKw + "[\\s\\:\\#\\-]*(\\d{1,3})\\b", "i");
     const match = message.match(regex);
     
-    if (match) {
+    if (match && match[1]) {
       const numStr = match[1];
       const fullMatch = match[0];
       const matchPos = match.index;
       
-      // (3b) Kiểm tra nhiễu
+      // Kiểm tra nhiễu
       if (isNoiseDetected_(message, numStr, matchPos, fullMatch)) {
-        continue; // Bị nhiễu thì tìm từ khóa tiếp theo
+        continue;
       }
       
-      // (3c) Validate range 1..110
-      const code = normalizeToTCode_(numStr);
-      if (isValidTCodeRange_(code)) {
-        return code;
+      // Nếu không có chữ cái đi kèm -> Mặc định gán prefix "T" cho VietToan
+      const code = "T" + numStr;
+      if (isValidLogoRange_(code)) {
+        return normalizeLogoNumber_(code, "T");
       }
     }
   }
 
-  // STOP: Không tìm ra hoặc không thỏa mãn điều kiện
-  return "T"; 
+  // STOP: Mặc định trả về rỗng nếu không tìm thấy gì
+  return ""; 
+}
+
+/**
+ * Kiểm tra mã logo bất kỳ có nằm trong dải 1-138 không
+ */
+function isValidLogoRange_(code) {
+  if (!code) return false;
+  const upper = code.toUpperCase().trim();
+  const match = upper.match(/^([A-Z])(\d{1,4})$/);
+  if (match) {
+    const num = parseInt(match[2], 10);
+    return num >= 1 && num <= 138;
+  }
+  return false;
 }
 
 /**
@@ -119,9 +143,6 @@ function normalizeToTCode_(input) {
   if (!digits) return "";
   
   const num = parseInt(digits, 10);
-  // Pad 0 cho số nhỏ hơn 10 (ví dụ T01, T09)
-  // Lưu ý: Nếu user muốn giữ nguyên T1 thì bỏ pad. 
-  // Thường hệ thống database cần T01-T09. 
   if (num < 10) return "T0" + num;
   return "T" + num;
 }

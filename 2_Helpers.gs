@@ -38,8 +38,47 @@ function safeString_(value) {
 // ==================== VARIATION PARSING ====================
 
 /**
+ * Tiền xử lý dòng biến thể để chèn dấu hai chấm ảo nếu bị thiếu do lỗi dính chữ khi cào HTML.
+ * Ví dụ: "Primary color25 - TURQUOise" -> "Primary color: 25 - TURQUOise"
+ * @param {string} line - Dòng đầu vào
+ * @return {string} Dòng đã được xử lý
+ */
+function preprocessVariationLine_(line) {
+  let t = safeString_(line);
+  if (!t) return "";
+
+  // Nếu đã có dấu hai chấm ở vị trí hợp lý, giữ nguyên
+  const colonIdx = t.indexOf(":");
+  if (colonIdx > 0) return t;
+
+  // Danh sách các từ khóa chuẩn cần kiểm tra dính liền (sắp xếp từ dài nhất đến ngắn nhất)
+  const standardKeys = [
+    { key: "primary color", label: "Primary color" },
+    { key: "key type", label: "Key Type" },
+    { key: "keychain style", label: "Keychain Style" },
+    { key: "keychain option", label: "Keychain Option" },
+    { key: "cover type", label: "Cover Type" },
+    { key: "smart tag text", label: "Smart Tag Text" },
+    { key: "logo color", label: "logo color" },
+    { key: "name tag", label: "name tag" },
+    { key: "logo", label: "Logo" }
+  ];
+
+  const lowerT = t.toLowerCase();
+  for (const item of standardKeys) {
+    if (lowerT.startsWith(item.key)) {
+      // Tách từ khóa và phần giá trị phía sau
+      const valuePart = t.substring(item.key.length).trim();
+      return `${item.label}: ${valuePart}`;
+    }
+  }
+
+  return t;
+}
+
+/**
  * Parse KEY TYPE from variations text (case-insensitive)
- * Look for any line containing "type" with format "label: value"
+ * Look for any line containing "type" with format "label: value" (excluding "cover")
  * @param {string} variationsText - Variations text
  * @return {string} Type value or empty string
  */
@@ -50,11 +89,15 @@ function parseKeyTypeFromVariations_(variationsText) {
 
   const lines = v.split("\n");
   for (let i = 0; i < lines.length; i++) {
-    const line = safeString_(lines[i]);
-    const match = line.match(/^[^:]*type[^:]*:\s*(.+)/i);
-    if (match && match[1]) {
-      const value = match[1].trim();
-      if (value) return value;
+    const line = preprocessVariationLine_(lines[i]);
+    const colonIdx = line.indexOf(":");
+    if (colonIdx > 0) {
+      const label = line.substring(0, colonIdx).trim().toLowerCase();
+      const value = line.substring(colonIdx + 1).trim();
+      // Nhãn chứa "type" nhưng KHÔNG chứa "cover"
+      if (label.includes("type") && !label.includes("cover")) {
+        if (value) return value;
+      }
     }
   }
   return "";

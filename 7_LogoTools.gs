@@ -194,7 +194,8 @@ function aiAnalyzeLogo_() {
     "laxiluxurycrafts": "L",
     "quangduocstore": "Q",
     "longnamleather": "N",
-    "khhandcrafts": "K"
+    "khhandcrafts": "K",
+    "leecozzycraft": "J"
   };
   
   let analyzed = 0;
@@ -346,12 +347,13 @@ function aiAnalyzeLogo_() {
 function extractLogoFromAIResult_(aiResult, prefix) {
   if (!aiResult) return "";
   
-  // Tìm dòng "Logo: T01" hoặc "Logo: \"T01\""
-  const logoLineMatch = aiResult.match(/Logo:\s*["']?([A-Z]?\d{1,3})["']?/i);
-  if (logoLineMatch && logoLineMatch[1]) {
-    const num = logoLineMatch[1].replace(/[^0-9]/g, "");
-    if (num && parseInt(num, 10) >= 1 && parseInt(num, 10) <= 110) {
-      return normalizeLogoNumber_(prefix + num, prefix);
+  // Tìm dòng "Logo: T01" hoặc "Logo: \"T01\"" (cho phép bất kỳ chữ cái đầu nào)
+  const logoLineMatch = aiResult.match(/Logo:\s*["']?([A-Za-z]?)(\d{1,3})["']?/i);
+  if (logoLineMatch && logoLineMatch[2]) {
+    const foundPrefix = logoLineMatch[1].toUpperCase() || prefix;
+    const num = parseInt(logoLineMatch[2], 10);
+    if (num >= 1 && num <= 138) {
+      return normalizeLogoNumber_(foundPrefix + num, foundPrefix);
     }
   }
   
@@ -359,7 +361,7 @@ function extractLogoFromAIResult_(aiResult, prefix) {
   const fallbackMatch = aiResult.match(/logo[^\d]*(\d{1,3})/i);
   if (fallbackMatch && fallbackMatch[1]) {
     const num = parseInt(fallbackMatch[1], 10);
-    if (num >= 1 && num <= 110) {
+    if (num >= 1 && num <= 138) {
       return normalizeLogoNumber_(prefix + num, prefix);
     }
   }
