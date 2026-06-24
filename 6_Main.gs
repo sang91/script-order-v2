@@ -253,8 +253,8 @@ function buildProductInfoNewFormat_(lines, variations) {
         const label = x.substring(0, colonIdx).trim().toLowerCase();
         const val = x.substring(colonIdx + 1).trim();
         
-        // Chỉ rút gọn nhãn "Logo code + Notes", "Logo", "personalization" hoặc các nhãn chứa "back logo"
-        if (label === "logo code + notes" || label === "personalization" || label === "logo" || label.includes("back logo")) {
+        // Chỉ rút gọn nhãn "Logo code + Notes", "Logo", "personalization", các nhãn chứa "back logo" hoặc "your logo"
+        if (label === "logo code + notes" || label === "personalization" || label === "logo" || label.includes("back logo") || label.includes("your logo")) {
           // Tránh lặp từ nếu trong giá trị đã chứa sẵn chữ "Logo:"
           if (/^logo\s*:/i.test(val)) {
             return val;
@@ -276,8 +276,8 @@ function buildProductInfoNewFormat_(lines, variations) {
         const label = x.substring(0, colonIdx).trim().toLowerCase();
         const val = x.substring(colonIdx + 1).trim();
         
-        // Chỉ rút gọn nhãn "Smart Tag Text" hoặc "SmartTag Text"
-        if (label.includes("smart tag") || label === "smarttag text") {
+        // Chỉ rút gọn nhãn "Smart Tag Text", "SmartTag Text", hoặc các nhãn chứa "emboss"
+        if (label.includes("smart tag") || label === "smarttag text" || label.includes("emboss")) {
           return `Tag: ${val}`;
         }
       }
