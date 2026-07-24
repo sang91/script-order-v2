@@ -1,3 +1,6 @@
+// Script ID mặc định (dán sẵn). Khi cần đổi: gõ ID khác vào ô rồi bấm "Save ID".
+const DEFAULT_SCRIPT_ID = "AKfycbxpJ8819vMNDIA4wibayVqAZPShHVAsWpwfUUpD9ZuOEoTEIaKg0ql3iSMOVsto6d1ZOg";
+
 // Hàm này chạy khi popup được mở
 document.addEventListener("DOMContentLoaded", () => {
   // 0. Kiểm tra và hiển thị thông báo cần update
@@ -68,9 +71,8 @@ document.addEventListener("DOMContentLoaded", () => {
   
   // 1. Tải ID đã lưu và shopMode, hiển thị lên UI
   chrome.storage.local.get(["scriptId", "shopMode"], (result) => {
-    if (result.scriptId) {
-      document.getElementById("scriptId").value = result.scriptId;
-    }
+    // Dán sẵn ID mặc định; nếu đã lưu ID khác thì ưu tiên ID đã lưu
+    document.getElementById("scriptId").value = result.scriptId || DEFAULT_SCRIPT_ID;
     
     // Tick radio button theo shopMode đã lưu
     if (result.shopMode) {

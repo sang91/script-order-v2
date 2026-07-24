@@ -15,7 +15,10 @@
 function normalizeCountryCode_(rawCountry) {
   let raw = safeString_(rawCountry);
   if (!raw) return "US";
-  if (raw.length === 2) return raw.toUpperCase();
+  if (raw.length === 2) {
+    const code = raw.toUpperCase();
+    return code === "UK" ? "GB" : code; // "uk" không phải ISO, chuẩn là GB
+  }
 
   const lc = raw.toLowerCase();
   const map = {
@@ -201,7 +204,13 @@ function normalizeUSState_(stateRaw) {
     "Vermont": "VT", "Virginia": "VA", "Washington": "WA", "West Virginia": "WV",
     "Wisconsin": "WI", "Wyoming": "WY"
   };
-  return map[s] || (s.length <= 3 ? s.toUpperCase() : s);
+  if (map[s]) return map[s];
+  // So khớp không phân biệt hoa/thường ("new york", "TEXAS" → NY, TX)
+  const sLower = s.toLowerCase();
+  for (const name in map) {
+    if (name.toLowerCase() === sLower) return map[name];
+  }
+  return s.length <= 3 ? s.toUpperCase() : s;
 }
 
 // ==================== ZIP CODE NORMALIZATION ====================

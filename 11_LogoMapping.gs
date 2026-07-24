@@ -33,7 +33,7 @@ const EXTRACTOR_CONFIG = {
     "xilacrafts": "X",
     "laxiluxurycrafts": "L",
     "quangduocstore": "S",
-    "longnamleather": "N",
+    "longnamleather": "J",
     "khhandcrafts": "K",
     "leecozzycraft": "J"
   },
@@ -44,7 +44,7 @@ const EXTRACTOR_CONFIG = {
     "xilacrafts": "X",
     "laxiluxurycrafts": "L",
     "quangduocstore": "Q",
-    "longnamleather": "N",
+    "longnamleather": "J",
     "khhandcrafts": "K",
     "leecozzycrafts": "J",
     "leecozzycraft": "J"

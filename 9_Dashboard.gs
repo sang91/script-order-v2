@@ -490,6 +490,7 @@ function appendDashboardData_(orders, mode) {
       }
       
       // Recalculate Listing Fee based on actual orderCount
+      const currency = safeString_(baseOrder.currency_code || baseOrder.currency || "USD").toUpperCase();
       const feeConfig = getFeeConfigByCurrency(currency);
       row[19] = feeConfig.listing_fee_fixed * orderCount; // T: Listing Fee (index 19)
       

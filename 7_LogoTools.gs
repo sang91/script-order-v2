@@ -40,8 +40,8 @@ const BASE_BACKOFF_MS = 1000; // Base delay cho exponential backoff
  * Lấy API Key từ Script Properties (bảo mật)
  */
 function getGeminiApiKey_() {
-  const apiKey = PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY');
-  if (apiKey && apiKey.startsWith("AIza")) {
+  const apiKey = (PropertiesService.getScriptProperties().getProperty('GEMINI_API_KEY') || "").trim();
+  if (apiKey.startsWith("AIza")) {
     return apiKey;
   }
   return "";
@@ -193,7 +193,7 @@ function aiAnalyzeLogo_() {
     "xilacrafts": "X",
     "laxiluxurycrafts": "L",
     "quangduocstore": "Q",
-    "longnamleather": "N",
+    "longnamleather": "J",   // Dùng lại bảng logo của LeeCozzy (prefix J)
     "khhandcrafts": "K",
     "leecozzycraft": "J"
   };

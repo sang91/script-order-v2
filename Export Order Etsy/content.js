@@ -133,6 +133,9 @@ function loadFromLocalStorage() {
   }
 }
 
+// Script ID mặc định (dán sẵn). Khi cần đổi: gõ ID khác vào popup rồi Save (ID đã lưu sẽ được ưu tiên).
+const DEFAULT_SCRIPT_ID = "AKfycbxpJ8819vMNDIA4wibayVqAZPShHVAsWpwfUUpD9ZuOEoTEIaKg0ql3iSMOVsto6d1ZOg";
+
 function getGoogleScriptsId() {
   return new Promise((resolve, reject) => {
     chrome.storage.local.get(['scriptId'], function (result) {
@@ -140,7 +143,7 @@ function getGoogleScriptsId() {
         reject(chrome.runtime.lastError);
         return;
       }
-      resolve(result['scriptId'] || null);
+      resolve(result['scriptId'] || DEFAULT_SCRIPT_ID);
     });
   });
 }

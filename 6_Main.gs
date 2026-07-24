@@ -32,6 +32,23 @@ function normalizeOrderForYun_(product, customerOrderNo) {
   };
 }
 
+/**
+ * Sinh hậu tố base-26 cho item thứ n trong 1 order: 1→A, 26→Z, 27→AA, 28→AB...
+ * (đặt trong 6_Main.gs để file tự đủ, không phụ thuộc file khác)
+ * @param {number} n - Số thứ tự (>=1)
+ * @return {string}
+ */
+function toBase26Suffix_(n) {
+  let s = "";
+  let x = Math.max(1, parseInt(n, 10) || 1);
+  while (x > 0) {
+    x--;
+    s = String.fromCharCode(65 + (x % 26)) + s;
+    x = Math.floor(x / 26);
+  }
+  return s || "A";
+}
+
 function buildProductInfo_(product, mode) {
   const lines = [];
 
@@ -148,6 +165,10 @@ function buildProductInfoNewFormat_(lines, variations) {
 
   // Thu thập tất cả fields TỪ INPUT (thứ tự bất kỳ từ Etsy)
   let colorText    = "";  // Màu chính
+  let stitchText   = "";  // Chỉ (stitching color - LAXI)
+  let edgeText     = "";  // Viền (edge color - LAXI)
+  let stitchEdgeSame = ""; // Chỉ + Viền cùng 1 màu (khi khách chỉ ghi 1 màu chung)
+  let logoColorText = ""; // Màu logo (từ field "Customize Stitch, Edge & Logo Colors": "Logo Red")
   let keyTypeText  = "";  // Key Type (C1, C5, TYPE 4...)
   let coverStyle   = "";  // Kín / Khoét
   let keychainText = "";  // Móc
@@ -165,6 +186,10 @@ function buildProductInfoNewFormat_(lines, variations) {
       if (tLower.includes("logo code") && tLower.includes("note")) {
         continue;
       }
+      // Bỏ field upload ảnh dính chữ không có dấu ":" (VD "Show Us Your Smart Key1 file")
+      if (/\d+\s*files?$/i.test(t) || tLower.includes("upload")) {
+        continue;
+      }
       otherLines.push(t);
       continue;
     }
@@ -176,19 +201,79 @@ function buildProductInfoNewFormat_(lines, variations) {
     // ① LOẠI NGAY: file upload, ảnh, link (VD: "Upload Your Smart Key: 1 file")
     if (label.includes("upload") || label.includes("photo") ||
         label.includes("image") || label.includes("picture") ||
-        label.includes("file")  || label.includes("pic")) {
+        label.includes("file")  || label.includes("pic") ||
+        /^\d+\s*files?$/i.test(value)) {   // value "2 files"/"1 file" = field upload ảnh (VD LongNam "Show Us Your Smart Key")
       continue;
     }
 
-    // ② COVER STYLE (Kín/Khoét) - Ưu tiên kiểm tra trước để tránh nhầm với Key Type
-    if (label.includes("cover") || label === "style cover") {
+    // ⓿ NHÃN GỘP keychain + cover (VD "Keychain + Cover Style: K4 - Full Cover", "Style & Keychain Option: Full Cover - K9")
+    //    → TÁCH: Móc = mã móc (K4/K9), Cover (Full/Cut) đẩy lên Type. Xét TRƯỚC nhánh cover/keychain.
+    //    Nhận diện: label có keychain VÀ (cover trong label HOẶC value có từ khóa cover) — không phụ thuộc thứ tự.
+    if ((label.includes("keychain") || label.includes("key chain")) &&
+        (label.includes("cover") || /full\s*cover|covered|cut\s*out|exposed/i.test(value))) {
+      const v = value.toLowerCase();
+      if (v.includes("full") || v.includes("covered")) coverStyle = "Kín";
+      else if (v.includes("cut") || v.includes("exposed")) coverStyle = "Khoét";
+      // Móc = value sau khi bỏ cụm cover đi (bỏ được dù cover đứng trước hay sau)
+      const moc = value
+        .replace(/full\s*cover(ed)?/ig, "")
+        .replace(/covered\s*buttons?/ig, "")
+        .replace(/cut\s*out(\s*buttons?)?/ig, "")
+        .replace(/exposed(\s*buttons?)?/ig, "")
+        .replace(/[-–\/|,]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+      if (moc) keychainText = moc;
+
+    // ② COVER STYLE (Kín/Khoét) - gồm cả nhãn "Choose the Button Finish" của LongNam
+    } else if (label.includes("cover") || label === "style cover" || label.includes("button finish")) {
       const v = value.toLowerCase();
       if (v.includes("full") || v.includes("covered")) coverStyle = "Kín";
       else if (v.includes("cut") || v.includes("exposed")) coverStyle = "Khoét";
 
-    // ③ PRIMARY COLOR (Màu chính - loại trừ logo color)
-    } else if ((label.includes("color") || label.includes("colour") || label.includes("leather")) && !label.includes("logo")) {
+    // ③ PRIMARY COLOR (Màu chính - loại trừ logo color VÀ stitching/edge color của LAXI)
+    // "Customize Stitching & Edge Colors" chứa chữ "colors" nhưng KHÔNG phải màu chính
+    // → không cho nó đè lên Primary Color (giữ nguyên dòng đó ở phần ghi chú khác)
+    } else if ((label.includes("color") || label.includes("colour") || label.includes("leather"))
+               && !label.includes("logo") && !label.includes("stitch") && !label.includes("edge")) {
       colorText = value;
+
+    // ③b STITCHING & EDGE (LAXI) → tách "Chỉ" (stitch) và "Viền" (edge)
+    // VD: "Stitch Yellow / Edge Purple" → Chỉ: Yellow, Viền: Purple
+    } else if (label.includes("stitch") || label.includes("edge")) {
+      const titleCase_ = (s) => s.trim().replace(/\b\w/g, c => c.toUpperCase());
+      // Khách không yêu cầu màu riêng (tone on tone / match leather / same...) → bỏ qua, dùng mặc định
+      const isDefaultColor_ = (s) => {
+        const x = s.toLowerCase();
+        return x.includes("tone on tone") || x.includes("tone-on-tone") ||
+               x.includes("match") || x.includes("same");
+      };
+      // 1) Tách theo KEYWORD stitch/edge/logo — hỗ trợ mọi dấu phân cách "-", "/", ","
+      //    VD "stitch red-edge black-logo red", "Stitch Yellow / Edge Purple", "Logo Red"
+      const kwRe = /(stitch(?:ing)?|edge(?:\s*paint)?|logo)\s*:?\s*([a-z][a-z\s]*?)(?=\s*[-\/,]|\s*(?:stitch|edge|logo)\b|$)/gi;
+      let m, foundKeyword = false;
+      while ((m = kwRe.exec(value)) !== null) {
+        foundKeyword = true;
+        const color = m[2].trim();
+        if (!color || isDefaultColor_(color.toLowerCase())) continue;
+        const k = m[1].toLowerCase();
+        if (k.indexOf("stitch") === 0) stitchText = titleCase_(color);
+        else if (k.indexOf("edge") === 0) edgeText = titleCase_(color);
+        else if (k.indexOf("logo") === 0) logoColorText = titleCase_(color);
+      }
+      // 2) Không có keyword → "/" tách 2 màu (Yellow / Purple) hoặc 1 màu chung (Red)
+      if (!foundKeyword) {
+        const parts = value.split("/");
+        if (parts.length === 1) {
+          if (!isDefaultColor_(value.toLowerCase())) stitchEdgeSame = titleCase_(value);
+        } else {
+          parts.forEach((part, idx) => {
+            if (isDefaultColor_(part.toLowerCase())) return;
+            if (idx === 0) stitchText = titleCase_(part);
+            else if (idx === 1) edgeText = titleCase_(part);
+          });
+        }
+      }
 
     // ④ KEY TYPE (Chỉ lấy nhãn type không chứa cover)
     } else if (label.includes("type") && !label.includes("cover")) {
@@ -232,6 +317,14 @@ function buildProductInfoNewFormat_(lines, variations) {
   // 1. Màu
   if (colorText) lines.push(`Màu: ${colorText}`);
 
+  // 1b. Chỉ / Viền (Stitching & Edge của LAXI)
+  if (stitchEdgeSame) {
+    lines.push(`Chỉ + Viền: ${stitchEdgeSame}`);
+  } else {
+    if (stitchText) lines.push(`Chỉ: ${stitchText}`);
+    if (edgeText) lines.push(`Viền: ${edgeText}`);
+  }
+
   // 2. Type + Cover Style
   if (keyTypeText) {
     const typeDisplay = coverStyle
@@ -254,7 +347,7 @@ function buildProductInfoNewFormat_(lines, variations) {
         const val = x.substring(colonIdx + 1).trim();
         
         // Chỉ rút gọn nhãn "Logo code + Notes", "Logo", "personalization", các nhãn chứa "back logo" hoặc "your logo"
-        if (label === "logo code + notes" || label === "personalization" || label === "logo" || label.includes("back logo") || label.includes("your logo")) {
+        if (label === "logo code + notes" || label.includes("logo code") || label === "personalization" || label === "logo" || label.includes("back logo") || label.includes("your logo")) {
           // Tránh lặp từ nếu trong giá trị đã chứa sẵn chữ "Logo:"
           if (/^logo\s*:/i.test(val)) {
             return val;
@@ -267,6 +360,9 @@ function buildProductInfoNewFormat_(lines, variations) {
     }).join("\n");
     lines.push(logoContent);
   }
+
+  // 4b. Màu logo (từ field "Customize Stitch, Edge & Logo Colors": "Logo Red")
+  if (logoColorText) lines.push(`Màu logo: ${logoColorText}`);
 
   // 5. Tag (nối các dòng tag)
   if (tagTexts.length > 0) {
@@ -336,6 +432,15 @@ function buildShippingBlock_(product) {
 // ==================== MAIN ENDPOINT ====================
 
 function doPost(e) {
+  const lock = LockService.getScriptLock();
+  try {
+    lock.waitLock(30000); // Chờ tối đa 30s để 2 request không ghi đè nhau
+  } catch (lockErr) {
+    return ContentService
+      .createTextOutput(JSON.stringify({ status: "error", message: "Hệ thống đang bận, vui lòng thử lại sau ít giây." }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+
   try {
     if (!e || !e.postData || !e.postData.contents) {
       return ContentService.createTextOutput("❌ No data received");
@@ -627,7 +732,7 @@ function doPost(e) {
       for (let q = 0; q < actualQty; q++) {
         const count = (payloadCounter.get(rawId) || 0) + 1;
         payloadCounter.set(rawId, count);
-        const suffix = String.fromCharCode(64 + count);
+        const suffix = toBase26Suffix_(count); // A..Z, AA, AB... (không hỏng sau 26 item)
         const cleanOrderId = `${rawId}_${suffix}`;
         const uniqueKey = `${uniqueKeyBase}_${q}`;
 
@@ -728,7 +833,17 @@ function doPost(e) {
       
       orderSheet.getRange(startRow, 1, rowsOrder.length, colCount)
         .setWrap(true).setHorizontalAlignment("left").setVerticalAlignment("middle");
-      
+
+      // STRAP: product info nhiều dòng (text dài) → tự giãn chiều cao hàng để hiện hết,
+      // tránh bị kẹp trong ô phải kéo tay. Ảnh cột C dùng IMAGE(...;1) sẽ co theo ô.
+      if (mode === "strap") {
+        try {
+          orderSheet.autoResizeRows(startRow, rowsOrder.length);
+        } catch (err) {
+          Logger.log(`[STRAP_ROW_HEIGHT] autoResize error: ${err.message}`);
+        }
+      }
+
       const orderIdCol = (mode === "strap") ? 4 : 5;
       formatOrderGroups_(orderSheet, startRow, rowsOrder.length, colCount, orderIdCol);
       
@@ -784,6 +899,8 @@ function doPost(e) {
         stack: err && err.stack ? err.stack : ""
       }))
       .setMimeType(ContentService.MimeType.JSON);
+  } finally {
+    lock.releaseLock();
   }
 }
 
@@ -798,7 +915,7 @@ function getShopPrefix_(shopName) {
     "xilacrafts": "X",
     "laxiluxurycrafts": "L",
     "quangduocstore": "Q", // Quang Đuợc dùng Q cho số Logo
-    "longnamleather": "N",
+    "longnamleather": "J",   // LeeCozzy chết → LongNam dùng lại bảng logo LeeCozzy (prefix J)
     "khhandcrafts": "K",
     "leecozzycraft": "J"
   };

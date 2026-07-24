@@ -395,7 +395,7 @@ function getShopList_() {
       return { success: true, shops: [] };
     }
     
-    const data = sheet.getRange(2, 4, lastRow - 1, 2).getValues(); // E: Shop Name, F: Currency
+    const data = sheet.getRange(2, 5, lastRow - 1, 2).getValues(); // E: Shop Name, F: Currency
     
     const shopMap = new Map();
     data.forEach(row => {
