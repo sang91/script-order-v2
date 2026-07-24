@@ -235,8 +235,8 @@ function buildProductInfoNewFormat_(lines, variations) {
     // "Customize Stitching & Edge Colors" chứa chữ "colors" nhưng KHÔNG phải màu chính
     // → không cho nó đè lên Primary Color (giữ nguyên dòng đó ở phần ghi chú khác)
     } else if ((label.includes("color") || label.includes("colour") || label.includes("leather"))
-               && !label.includes("logo") && !label.includes("stitch") && !label.includes("edge")) {
-      colorText = value;
+               && !label.includes("logo") && !label.includes("stitch") && !label.includes("edge") && !label.includes("tag")) {
+      colorText = value;   // "Custom Leather Tag" chứa "leather" nhưng là TAG, không phải màu → loại "tag"
 
     // ③b STITCHING & EDGE (LAXI) → tách "Chỉ" (stitch) và "Viền" (edge)
     // VD: "Stitch Yellow / Edge Purple" → Chỉ: Yellow, Viền: Purple
@@ -373,7 +373,7 @@ function buildProductInfoNewFormat_(lines, variations) {
         const val = x.substring(colonIdx + 1).trim();
         
         // Chỉ rút gọn nhãn "Smart Tag Text", "SmartTag Text", hoặc các nhãn chứa "emboss"
-        if (label.includes("smart tag") || label === "smarttag text" || label.includes("emboss")) {
+        if (label.includes("smart tag") || label.includes("leather tag") || label === "smarttag text" || label.includes("emboss")) {
           return `Tag: ${val}`;
         }
       }
